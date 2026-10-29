@@ -2,8 +2,8 @@ name: Startup News to Discord
 
 on:
   schedule:
-    # 毎朝 7:17 JST（= 22:17 UTC）。GitHub側の混雑で数分〜十数分遅れることがあります
-    - cron: "17 22 * * *"
+    # 毎朝 9:00 JST（= 0:00 UTC）。GitHub側の混雑で数分〜十数分遅れることがあります
+    - cron: "0 0 * * *"
   workflow_dispatch: {}   # Actions画面の「Run workflow」から手動実行もできる
 
 jobs:
