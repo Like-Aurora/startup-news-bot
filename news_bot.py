@@ -1,6 +1,6 @@
 """
 スタートアップ系ニュースをRSSから集めて、Discord Webhookに投稿するスクリプト。
-日本と海外から、それぞれ新しい記事を PER_REGION 件ずつ選んで送る。
+日本と海外から、それぞれ新しい記事を指定件数（count）選んで送る。
 
 使い方:
   DISCORD_WEBHOOK_URL=... python news_bot.py
@@ -22,6 +22,7 @@ import feedparser
 REGIONS = [
     {
         "title": "🇯🇵 日本",
+        "count": 3,              # 送る件数
         "color": 0xE74C3C,
         "feeds": [
             "https://thebridge.jp/feed",
@@ -30,6 +31,7 @@ REGIONS = [
     },
     {
         "title": "🌏 海外",
+        "count": 1,              # 送る件数
         "color": 0x2E86DE,
         "feeds": [
             "https://techcrunch.com/category/startups/feed/",
@@ -38,7 +40,6 @@ REGIONS = [
     },
 ]
 
-PER_REGION = 2           # 日本・海外それぞれ何件送るか
 HOURS_BACK = 24          # 何時間前までの記事を候補にするか
 JST = timezone(timedelta(hours=9))
 # ────────────────────────────────────────────────────
@@ -69,7 +70,7 @@ def collect(url, since):
 
 
 def pick(region, since):
-    """各ソースの新しい順に交互に取り、重複を除いて PER_REGION 件選ぶ"""
+    """各ソースの新しい順に交互に取り、重複を除いて count 件選ぶ"""
     per_feed = []
     for url in region["feeds"]:
         try:
@@ -79,9 +80,9 @@ def pick(region, since):
 
     chosen, seen = [], set()
     i = 0
-    while len(chosen) < PER_REGION and any(i < len(f) for f in per_feed):
+    while len(chosen) < region["count"] and any(i < len(f) for f in per_feed):
         for f in per_feed:
-            if i < len(f) and len(chosen) < PER_REGION:
+            if i < len(f) and len(chosen) < region["count"]:
                 key = f[i]["title"][:40]
                 if key not in seen:
                     seen.add(key)
